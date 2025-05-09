@@ -5,10 +5,12 @@ import axios from "axios";
 function App() {
   const [jokes, setJokes] = useState([]);
 
+  console.log(`hello devs`)
+
   useEffect(()=>{
-    axios
-    .get(`http://localhost:3000/jokes`)
+    axios.get(`/api/jokes`)
     .then((response) => {
+    console.log(`response data ${response.data}`)
       setJokes(response.data);
     })
     .catch((error) => {
@@ -22,12 +24,12 @@ function App() {
       <h1>Learning Full Stack</h1>
       <h2>JOKES: {jokes.length}</h2>
 
-      {jokes.map((joke) => {
+      {jokes.map((joke,index) => (
         <div key={joke.id}>
-          <h2>title:{joke.title}</h2>
-          <p>content:{joke.content}</p>
-        </div>;
-      })}
+          <h2>{joke.title}</h2>
+          <p>{joke.content}</p>
+        </div>
+      ))}
     </>
   );
 }
