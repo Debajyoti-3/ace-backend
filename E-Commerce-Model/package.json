@@ -1,0 +1,16 @@
+{
+  "name": "e-commerce-model",
+  "version": "1.0.0",
+  "description": "e-commerce data modelling",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.14.2"
+  }
+}
