@@ -47,15 +47,15 @@ const userSchema = new Schema({
     
 },{timestamps:true})
 
-userSchema.pre("save", async function(next){    // dont use arrow func here (cause error)
+userSchema.pre("save", async function(next){    // dont use arrow func here (causes error)
 
     if(!this.isModified("password")) return next()
-    this.password = bcrypt.hash(this.password, 10)  // encrypting
+    this.password = bcrypt.hash(this.password, 10)  // encrypting, 10 is saltRounds
     next();
 })
 
 userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password, this.password)
+    return await bcrypt.compare(password, this.password)    // compare password during login
 }
 
 userSchema.methods.generateAccessToken = function(){
