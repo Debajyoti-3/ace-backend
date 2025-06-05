@@ -40,7 +40,7 @@ const userSchema = new Schema({
     watchHistory:[
         {
             type: Schema.Types.ObjectId,
-            ref: Video
+            ref:"Video"
         }
     ]
 
@@ -50,7 +50,7 @@ const userSchema = new Schema({
 userSchema.pre("save", async function(next){    // dont use arrow func here (causes error)
 
     if(!this.isModified("password")) return next()
-    this.password = bcrypt.hash(this.password, 10)  // encrypting, 10 is saltRounds
+    this.password = await bcrypt.hash(this.password, 10)  // encrypting, 10 is saltRounds
     next();
 })
 
