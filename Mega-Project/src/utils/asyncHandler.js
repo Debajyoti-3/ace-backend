@@ -4,7 +4,7 @@ as arguments and can return functions)
 
 // using promise (may seems complex)
 const asyncHandler = (requestHandler) => {
-  (req, res, next) => {
+  return (req, res, next) => {
     Promise.resolve(requestHandler(req, res, next)).catch((error) =>
       next(error)
     );
