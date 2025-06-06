@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs"; // fs -> file system, nativly present in node js
+import fs from "fs"; // fs -> file system, nativly present in node js (No need to Install Package Manually)
 
 // configuration
 cloudinary.config({
@@ -16,13 +16,15 @@ const uploadOnCloudinary = async (localFilePath) => {
     });
 
     // file upload completed
-    console.log(
-      `File Upload in Cloudinary Successfully Completed`,
-      response.url
-    );
+    // console.log(                 // This was for Testing Purpose
+    //   `File Upload in Cloudinary Successfully Completed`,
+    //   response.url
+    // );
+    fs.unlinkSync(localFilePath)
     return response;
   } catch (error) {
     fs.unlinkSync(localFilePath); // it removes the loaclly saved temporary file as the upload fails
+    return null;
   }
 };
 
