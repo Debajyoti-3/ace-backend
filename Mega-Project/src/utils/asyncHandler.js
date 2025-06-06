@@ -1,3 +1,4 @@
+
 /* here asyncHandler is a high order function (its a function who can takes functions
 as arguments and can return functions)
 */
@@ -15,7 +16,7 @@ export { asyncHandler };
 
 
 // const asyncHandler = ()=>{}
-// const asyncHandler = ()=>{() => {}}
+// const asyncHandler = ()=>{() => {}}        // asyncHandler is higher order function
 // const asyncHandler = ()=>{ async () => {}}
 
         // using try-catch (easy way)

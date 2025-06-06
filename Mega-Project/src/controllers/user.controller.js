@@ -5,6 +5,23 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResonse } from "../utils/ApiResonse.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
+// as we will use this thing several times, so we made this method
+const generateAccessAndRefreshTokens = async(userId)=>{
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        // saving refresh token in DB
+        user.refreshToken = refreshToken;
+        await user.save({validateBeforeSave: false})      // save is from MongoDB
+
+        return {accessToken, refreshToken}
+        
+    } catch (error) {
+        throw new ApiError(500, "Something Went Wrong in generating Access and Refresh Token")
+    }
+}
 const registerUser = asyncHandler( async (req,res)=>{
    
     // taking user details from frontend
@@ -13,14 +30,14 @@ const registerUser = asyncHandler( async (req,res)=>{
     // taking image, avater
     // upload them in cloudinary - check avatar
     // create database to store user data, entry
-    // remove password,refresh token
+    // remove password, refresh token
     // check user creation
     // send res
 
 
     // taking user details
     const {fullName, email, username, password}= req.body
-    console.log("email: ",email);
+    //console.log("email: ",email);
 
 
     // validation --- not empty
@@ -29,13 +46,13 @@ const registerUser = asyncHandler( async (req,res)=>{
     //     throw new ApiError(400, "Something Went Wrong")
     // }
     if([fullName,email, username, password].some((field)=>{field?.trim()===""})){
-        throw new ApiError(400, "All Field are Required")
+        throw new ApiError(400, "All Fields are Required")
     }
 
 
     // checking existed user or not
-    const existedUser = await User.findOne({
-        $or: [{ username },{ email }]   // this is like OR operator
+    const existedUser = await User.findOne({    // findOne means it just find one cases
+        $or: [{ username },{ email }]   // this is like OR operator, checks atleast one exited
     })
     if(existedUser){
         throw new ApiError(409, "username or email is already existed")
@@ -93,4 +110,37 @@ const registerUser = asyncHandler( async (req,res)=>{
     
 })
 
-export {registerUser}
+const loginUser = asyncHandler(async (req,res)=>{
+    //take data from req
+    // check username and email
+    // check user
+    // check password
+    // generate access and refresh token
+    // cookies
+
+    const {username, password, email} = req.body;
+
+    if(!username || !email){
+        throw new ApiError(400,"Username or Email required")
+    }
+    const user = await User.findOne({
+        $or: [{email},{username}]
+    })
+
+    if(!user){
+        throw new ApiError(404,"User Not Registered")
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password)
+    if(!isPasswordValid){
+        throw new ApiError(400,"Invalid Password Credentials")
+    }
+
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+
+})
+
+export {
+    registerUser,
+    loginUser
+}
