@@ -138,6 +138,24 @@ const loginUser = asyncHandler(async (req,res)=>{
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
+    const loggedInUser = User.findById(user._id).select(
+        "-password -refreshToken"
+    )
+    const options = {   // this options is for cookies
+        httpOnly:true,          // this means only server can set cookies
+        secure:true
+    }
+    return res.
+    status(200)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refreshToken",refreshToken,options)
+    .json(
+        new ApiResonse(200,{        // here we pass access and refresh tokens for Edge cases like: mobile app dev, and user need to store for their own reasons
+            user: accessToken, refreshToken, loggedInUser
+        },
+        "User LoggedIn Successfully"
+    )
+    )
 })
 
 export {
