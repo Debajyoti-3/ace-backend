@@ -40,6 +40,7 @@ const registerUser = asyncHandler( async (req,res)=>{
     //console.log("email: ",email);
 
 
+
     // validation --- not empty
 
     // if(email == ""){
@@ -120,9 +121,11 @@ const loginUser = asyncHandler(async (req,res)=>{
 
     const {username, password, email} = req.body;
 
-    if(!username || !email){
+    if(!(username || email)){       // if one of these is not present
         throw new ApiError(400,"Username or Email required")
     }
+
+    //check user
     const user = await User.findOne({
         $or: [{email},{username}]
     })
@@ -138,20 +141,31 @@ const loginUser = asyncHandler(async (req,res)=>{
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser = User.findById(user._id).select(
+    const loggedInUser = await User.findById(user._id).select(  // intially i did not write the await so it gives Circualar Conversion Error
         "-password -refreshToken"
     )
     const options = {   // this options is for cookies
         httpOnly:true,          // this means only server can set cookies
         secure:true
     }
+    // console.log(typeof loggedInUser);
+
+    //console.log("Access token",accessToken)
+    //console.log("Refresh Token",refreshToken)
+
     return res.
     status(200)
-    .cookie("accessToken",accessToken,options)
-    .cookie("refreshToken",refreshToken,options)
+    .cookie("accessToken", accessToken,options)
+    .cookie("refreshToken", refreshToken,options)
     .json(
-        new ApiResonse(200,{        // here we pass access and refresh tokens for Edge cases like: mobile app dev, and user need to store for their own reasons
-            user: accessToken, refreshToken, loggedInUser
+        new ApiResonse(200,
+            {        // here we pass access and refresh tokens for Edge cases like: mobile app dev, and user need to store for their own reasons
+            user:{ 
+                accessToken,
+                refreshToken, 
+                loggedInUser
+                //transform to plain object, as before getteing Circular Reference Error
+            }
         },
         "User LoggedIn Successfully"
     )
