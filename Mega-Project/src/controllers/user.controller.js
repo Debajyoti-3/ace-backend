@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResonse } from "../utils/ApiResonse.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import { jwt } from "jsonwebtoken";
 
 // as we will use this thing several times, so we made this method
 const generateAccessAndRefreshTokens = async(userId)=>{
@@ -197,8 +198,47 @@ const logoutUser = asyncHandler(async(req, res) => {
     .json(new ApiResonse(200, {}, "User logged Out"))
 })
 
+const refreshAccessToken = asyncHandler(async (res,req)=>{
+ try {
+       const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken
+       if(!incomingRefreshToken){
+           throw new ApiError(501, "UnAuthorized Request");
+       }
+   
+       const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+       const user = await User.findById(decodedToken?._id);
+   
+       // check if given and saved refresh token are same or not
+       if(incomingRefreshToken !== user.refreshToken){
+           throw new ApiError(401, "refresh token is expired or used")
+       }
+       
+       const options ={
+           httpOnly: true,
+           secure:true
+       }
+       const {newRefreshToken, accessToken} = await generateAccessAndRefreshTokens(user._id)
+   
+       return res
+       .status(200)
+       .cookie("Access Token", accessToken, options)
+       .cookie("Refresh Token", newRefreshToken, options)
+       .json(
+           200,
+           {
+               accessToken, refreshToken: newRefreshToken
+           },
+           "Access Token is Refreshed"
+       )
+ } catch (error) {
+    throw new ApiError(401, error?.message || "Invalid Refresh Token")
+ }
+    
+})
+
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    refreshAccessToken
 }
