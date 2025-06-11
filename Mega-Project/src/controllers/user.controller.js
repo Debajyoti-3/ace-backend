@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResonse } from "../utils/ApiResonse.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { jwt } from "jsonwebtoken";
+import  jwt  from "jsonwebtoken";
 
 // as we will use this thing several times, so we made this method
 const generateAccessAndRefreshTokens = async(userId)=>{
