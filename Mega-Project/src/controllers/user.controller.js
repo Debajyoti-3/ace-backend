@@ -353,6 +353,79 @@ const updateCoverImage = asyncHandler(async (req,res)=>{
     .json(new ApiResonse(200,user,"coverImage Updated Successfully"))
 })
 
+const getUserChannelProfile = asyncHandler( async (req,res)=>{
+    const {username} = req.params
+    if(!username?.trim()){
+        throw new ApiError(400,"username not found")
+    }
+
+    const channel = await User.aggregate([  // aggregate() returns Array
+        {
+            // stage-1
+            $match:{        // filters with the condition
+                username: username?.toLowerCase()
+            }
+        },
+        {
+            // stage-2
+            $lookup:{                  // as join of SQL
+                from:"subscriptions",       // foreign collection
+                localField:"_id",            // in user model
+                foreignField:"channel",
+                as:"subscribers"
+            },
+        },
+        {
+            // stage-3
+            $lookup:{                  // as join of SQL
+                from:"subscriptions",       // foreign collection
+                localField:"_id",            // in user model
+                foreignField:"subscriber",
+                as:"subscribedTo"
+            },
+        },
+        {
+            // stage-4
+
+            $addFields:{    // adding new fields
+                subscriberCount:{
+                    $size:"$subscribers"    // $ in subscribers, is as its a field
+                },
+                channelSubscribedToCount:{
+                    $size:"$subscribedTo"
+                },
+                isSubscribed:{  // checking if the particular user is a subscriber or not
+                    $cond:{
+                        if: {$in:[req.user?._id, $subscribers.subscriber]}, // is the user is present in subscriber list
+                        then:true,
+                        else:false
+                    }
+                }
+            }
+        },
+        {   // stage-5
+
+            $project:{        // project -> projection  
+                username:1,         // here 1 means it will stay to the final
+                email:1,
+                subscriberCount:1,
+                channelSubscribedToCount:1,
+                isSubscribed:1,
+                avatar:1,
+                coverImage:1
+            }
+        }
+
+    ])
+
+    if(!channel?.length){
+        throw new ApiError(400,"Channel does not exist")
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResonse(200, channel[0], "channel fetched successfully"))
+})
 
 export {
     registerUser,
@@ -363,5 +436,6 @@ export {
     changePassword,
     getCurrentUser,
     updateUserAvatar,
-    updateCoverImage
+    updateCoverImage,
+    getUserChannelProfile
 }
