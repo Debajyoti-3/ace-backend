@@ -11,14 +11,16 @@ cloudinary.config({
 const uploadOnCloudinary = async (localFilePath) => {
   try {
     // file upload
+
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
 
     // file upload completed
+
     // console.log(                 // This was for Testing Purpose
     //   `File Upload in Cloudinary Successfully Completed`,
-    //   response.url
+    //   response
     // );
     fs.unlinkSync(localFilePath)
     return response;
@@ -28,4 +30,11 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export {uploadOnCloudinary}
+// delete uploaded files
+
+const deleteFromClodinary = async (publicId)=>{
+  const deleteResponse = await cloudinary.uploader.destroy('publicId')
+  return deleteResponse
+}
+
+export {uploadOnCloudinary, deleteFromClodinary}

@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResonse } from "../utils/ApiResonse.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import  jwt  from "jsonwebtoken";
+import { deleteFromClodinary } from "../utils/cloudinary.js";
 
 // as we will use this thing several times, so we made this method
 const generateAccessAndRefreshTokens = async(userId)=>{
@@ -85,7 +86,7 @@ const registerUser = asyncHandler( async (req,res)=>{
     // create store in database
     const user = await User.create({
         fullName,
-        avatar: avatar.url,
+        avatar: avatar?.url,
         coverImage: coverImage?.url,
         password,
         email,
@@ -286,14 +287,20 @@ const updateUserAvatar = asyncHandler(async (req,res)=>{
     const avatarLocalPath = req.file?.path
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar File is Missing")
-    }
-
-    // TODO: delete old image(avatar) --- Assignment
+    } 
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     if(!avatar.url){
         throw new ApiError(400, "Error While uploading Avatar in Cloudinary")
     }
+
+    // TODO: delete old image(avatar) --- Assignment
+
+    const deleteAvatar = await deleteFromClodinary(avatar.public_id)
+    if(!deleteAvatar){
+        throw new ApiError(400,"Error While Deleting File ...")
+    }
+
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
@@ -320,6 +327,13 @@ const updateCoverImage = asyncHandler(async (req,res)=>{
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
     if(!coverImage.url){
         throw new ApiError(400, "Error While uploading coverImage in Cloudinary")
+    }
+
+    // TODO: delete old image(coverImage) --- Assignment
+
+    const deleteCoverImage = await deleteFromClodinary(coverImage.public_id)
+    if(!deleteCoverImage){
+        throw new ApiError(400,"Error While Deleting File ...")
     }
 
     const user = await User.findByIdAndUpdate(
