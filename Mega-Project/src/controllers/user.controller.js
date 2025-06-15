@@ -248,14 +248,14 @@ const changePassword = asyncHandler(async (res,req)=>{
 
     return res
     .status(200)
-    .json(new ApiResonse(200, "Password Changed"))
+    .json(new ApiResonse(200, {},"Password Changed"))
     
 })
 
 const getCurrentUser = asyncHandler(async (res,req)=>{
    return res
    .status(200)
-   .json(200, req.user, "User Fetched Successfully")    // as we have done req.user = user in the time of middleware
+   .json(new ApiResonse(200, req.user, "User Fetched Successfully"))    // as we have done req.user = user in the time of middleware
 })
 
 const updateAccountDetails = asyncHandler(async (res,req)=>{
@@ -264,7 +264,7 @@ const updateAccountDetails = asyncHandler(async (res,req)=>{
         throw new ApiError(400,"Give the Data You Want to Update")
     }
 
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set:{
@@ -275,7 +275,7 @@ const updateAccountDetails = asyncHandler(async (res,req)=>{
         {
             new: true
         }
-    ).select("--password")
+    ).select("-password")
 
     return res
     .status(200)
@@ -287,6 +287,9 @@ const updateUserAvatar = asyncHandler(async (req,res)=>{
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar File is Missing")
     }
+
+    // TODO: delete old image(avatar) --- Assignment
+
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     if(!avatar.url){
         throw new ApiError(400, "Error While uploading Avatar in Cloudinary")
@@ -302,11 +305,11 @@ const updateUserAvatar = asyncHandler(async (req,res)=>{
         {
             new:true
         }
-    )
+    ).select("-password")
 
     return res
     .status(200)
-    .json(200,user,"Avatar Updated Successfully")
+    .json(new ApiResonse(200,user,"Avatar Updated Successfully"))
 })
 
 const updateCoverImage = asyncHandler(async (req,res)=>{
@@ -329,11 +332,11 @@ const updateCoverImage = asyncHandler(async (req,res)=>{
         {
             new:true
         }
-    )
+    ).select("-password")
 
     return res
     .status(200)
-    .json(200,user,"coverImage Updated Successfully")
+    .json(new ApiResonse(200,user,"coverImage Updated Successfully"))
 })
 
 
