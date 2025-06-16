@@ -131,7 +131,7 @@ const loginUser = asyncHandler(async (req,res)=>{
 
     //check user
     const user = await User.findOne({
-        $or: [{email},{username}]
+        $or: [{email},{username}]       // or operator of MongoDB
     })
 
     if(!user){
@@ -144,6 +144,9 @@ const loginUser = asyncHandler(async (req,res)=>{
     }
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+
+    user.refreshToken = refreshToken
+    await user.save();
 
     const loggedInUser = await User.findById(user._id).select(  // intially i did not write the await so it gives Circualar Conversion Error
         "-password -refreshToken"
@@ -201,9 +204,10 @@ const logoutUser = asyncHandler(async(req, res) => {
     .json(new ApiResonse(200, {}, "User logged Out"))
 })
 
-const refreshAccessToken = asyncHandler(async (res,req)=>{
+const refreshAccessToken = asyncHandler(async (req,res)=>{
  try {
        const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken
+        //console.log("incomingRefreshToken: ",incomingRefreshToken)
        if(!incomingRefreshToken){
            throw new ApiError(501, "UnAuthorized Request");
        }
@@ -221,17 +225,19 @@ const refreshAccessToken = asyncHandler(async (res,req)=>{
            secure:true
        }
        const {newRefreshToken, accessToken} = await generateAccessAndRefreshTokens(user._id)
+       //console.log(`newrefresh token is: ${newRefreshToken}`)
    
        return res
        .status(200)
        .cookie("Access Token", accessToken, options)
        .cookie("Refresh Token", newRefreshToken, options)
        .json(
-           200,
+           new ApiResonse(200,
            {
-               accessToken, refreshToken: newRefreshToken
+               accessToken, 
+               refreshToken: newRefreshToken
            },
-           "Access Token is Refreshed"
+           "Access Token is Refreshed")
        )
  } catch (error) {
     throw new ApiError(401, error?.message || "Invalid Refresh Token")
@@ -239,7 +245,7 @@ const refreshAccessToken = asyncHandler(async (res,req)=>{
     
 })
 
-const changePassword = asyncHandler(async (res,req)=>{
+const changePassword = asyncHandler(async (req,res)=>{
     const {oldPassword, newPassword} = req.body
     const user = await User.findById(req.user?._id)
     const passwordCorrect = await user.isPasswordCorrect(oldPassword)
@@ -255,13 +261,13 @@ const changePassword = asyncHandler(async (res,req)=>{
     
 })
 
-const getCurrentUser = asyncHandler(async (res,req)=>{
+const getCurrentUser = asyncHandler(async (req,res)=>{
    return res
    .status(200)
    .json(new ApiResonse(200, req.user, "User Fetched Successfully"))    // as we have done req.user = user in the time of middleware
 })
 
-const updateAccountDetails = asyncHandler(async (res,req)=>{
+const updateAccountDetails = asyncHandler(async (req,res)=>{
     const {fullName, email} = req.body // basically we destrucring what we want to update
     if(!fullName || !email){
         throw new ApiError(400,"Give the Data You Want to Update")

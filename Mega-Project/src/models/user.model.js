@@ -23,11 +23,6 @@ const userSchema = new Schema({
         trim: true,
         index:true
     },
-    password:{
-        type: String,       // String type is important here
-        required:true
-
-    },
     avatar:{
         type: String,        // cloudinary url
         required:true
@@ -42,7 +37,14 @@ const userSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref:"Video"
         }
-    ]
+    ],
+    password: {
+            type: String,           // String type is importtant here 
+            required: [true, 'Password is required']
+        },
+    refreshToken: {
+            type: String
+    }
 
     
 },{timestamps:true})

@@ -8,12 +8,14 @@ import {
     getCurrentUser, 
     updateUserAvatar, 
     updateCoverImage, 
-    getWatchHistory 
+    getWatchHistory,
+    updateAccountDetails,
+    getUserChannelProfile
 } 
 from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { verify } from "jsonwebtoken";
+// import { verify } from "jsonwebtoken";
 
 const router = Router()
 
