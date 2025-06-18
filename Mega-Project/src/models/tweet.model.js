@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const tweetSchema = new mongoose.Schema({
+const tweetSchema = new mongoose.Schema({   // _id will automatically generate by MongoDB
     content:{
         type:String,
         required:true

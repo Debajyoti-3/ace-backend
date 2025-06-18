@@ -288,7 +288,7 @@ const updateAccountDetails = asyncHandler(async (req,res)=>{
 
     return res
     .status(200)
-    .ApiResonse( new ApiResonse(200,user,"Account Details Updated Successfully"))
+    .json( new ApiResonse(200,user,"Account Details Updated Successfully"))
 })
 
 const updateUserAvatar = asyncHandler(async (req,res)=>{
