@@ -376,7 +376,7 @@ const getUserChannelProfile = asyncHandler( async (req,res)=>{
         },
         {
             // stage-2
-            $lookup:{                  // as join of SQL
+            $lookup:{      // as join of SQL
                 from:"subscriptions",       // foreign collection
                 localField:"_id",            // in user model
                 foreignField:"channel",
