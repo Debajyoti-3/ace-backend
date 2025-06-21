@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+// import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+
+import aggregatePaginate from "mongoose-aggregate-paginate-v2"; // use this , as aggregatePaginate is default supported name in this case. otherwise you have to explicitly create a function of that name(your choiced name)
 
 const commentSchema = new mongoose.Schema(
   {
@@ -21,5 +23,5 @@ const commentSchema = new mongoose.Schema(
   }
 );
 
-commentSchema.plugin(mongooseAggregatePaginate); // this is for Pagination
+commentSchema.plugin(aggregatePaginate); // this is for Pagination
 export const Comment = mongoose.model("Comment", commentSchema);
