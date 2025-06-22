@@ -10,11 +10,11 @@ app.use(cors({
     credentials: true
 }))
 
-// these configurations as server may get data from multiple places
+// these configurations (of middlewares), as server may get data from multiple places
 app.use(express.json({limit:"16kb"}))
-app.use(express.urlencoded({extended:true,limit:"16kb"}))
+app.use(express.urlencoded({extended:true,limit:"16kb"})) // previously, you have to use bodyParser for this
 app.use(express.static('public'))
-app.use(cookieParser())
+app.use(cookieParser()) // for cookie related
 
 
 // routes import
