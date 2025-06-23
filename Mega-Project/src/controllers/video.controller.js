@@ -127,7 +127,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
 
-    const {thumbnailLocalPath} = req.files
+    const {thumbnailLocalPath} = req.file
     const {title, description} = req.body
 
      if(!thumbnailLocalPath ){
